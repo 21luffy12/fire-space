@@ -1,0 +1,6 @@
+{
+  "name": "Fire & Space — Wildfire Monitoring",
+  "description": "Satellite Radiometric Hotspot Clustering & Wildfire Monitoring Platform with near-real-time NASA FIRMS ingestion, DBSCAN clustering, and 6-hour spread projection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

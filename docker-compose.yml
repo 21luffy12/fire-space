@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Operational Database
+  mongodb:
+    image: mongo:7.0
+    container_name: fire_space_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: fire_space
+    volumes:
+      - mongo_data:/data/db
+
+  # Python Geospatial Microservice (GeoPandas, Shapely, STRtree, DBSCAN)
+  geo-engine:
+    build:
+      context: ./geo-engine
+      dockerfile: Dockerfile
+    container_name: fire_space_geo_engine
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    depends_on:
+      - mongodb
+
+  # Full-Stack Application (Express Node.js API + React Vite Frontend)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fire_space_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/fire_space
+      - GEO_ENGINE_URL=http://geo-engine:8000
+      - FIRMS_API_KEY=${FIRMS_API_KEY:-}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      - DBSCAN_EPS_KM=${DBSCAN_EPS_KM:-2.5}
+      - DBSCAN_MIN_SAMPLES=${DBSCAN_MIN_SAMPLES:-3}
+      - FIRE_REFRESH_MINUTES=${FIRE_REFRESH_MINUTES:-15}
+    depends_on:
+      - mongodb
+      - geo-engine
+
+volumes:
+  mongo_data:
